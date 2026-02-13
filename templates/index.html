@@ -1,0 +1,107 @@
+{% extends "base.html" %}
+{% set title = "首页 - 记账工具" %}
+{% block content %}
+<header class="topbar">
+  <h1>记账工具</h1>
+  <div class="top-actions">
+    <a class="ghost-link" href="{{ url_for('monthly_report') }}">月度统计</a>
+    <a class="ghost-link" href="{{ url_for('settings') }}">配置</a>
+    <form method="post" action="{{ url_for('logout') }}">
+      <button class="ghost" type="submit">退出登录</button>
+    </form>
+  </div>
+</header>
+
+<section class="summary-grid">
+  <article class="summary-card income">
+    <h2>总收入</h2>
+    <p>¥ {{ "%.2f"|format(income_total) }}</p>
+  </article>
+  <article class="summary-card expense">
+    <h2>总支出</h2>
+    <p>¥ {{ "%.2f"|format(expense_total) }}</p>
+  </article>
+  <article class="summary-card balance">
+    <h2>结余</h2>
+    <p>¥ {{ "%.2f"|format(balance) }}</p>
+  </article>
+</section>
+
+<section class="card">
+  <h2>新增记录</h2>
+  <form method="post" action="{{ url_for('add_transaction') }}" class="form grid">
+    <label>
+      类型
+      <select name="type" required>
+        <option value="expense">支出</option>
+        <option value="income">收入</option>
+      </select>
+    </label>
+    <label>
+      金额
+      <input name="amount" type="number" min="0" step="0.01" required placeholder="0.00">
+    </label>
+    <label>
+      分类
+      <select name="category" required>
+        {% for c in categories %}
+        <option value="{{ c }}">{{ c }}</option>
+        {% endfor %}
+      </select>
+    </label>
+    <label>
+      日期
+      <input name="happened_on" type="date" required value="{{ today }}">
+    </label>
+    <label class="full">
+      备注
+      <input name="note" type="text" maxlength="200" placeholder="可选">
+    </label>
+    <button class="full" type="submit">保存</button>
+  </form>
+</section>
+
+<section class="card">
+  <h2>账单记录</h2>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>日期</th>
+          <th>类型</th>
+          <th>分类</th>
+          <th>金额</th>
+          <th>备注</th>
+          <th>操作</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% if rows %}
+          {% for r in rows %}
+          <tr>
+            <td data-label="日期">{{ r.happened_on }}</td>
+            <td data-label="类型">{{ "收入" if r.type == "income" else "支出" }}</td>
+            <td data-label="分类">{{ r.category }}</td>
+            <td data-label="金额">¥ {{ "%.2f"|format(r.amount) }}</td>
+            <td data-label="备注">{{ r.note or "-" }}</td>
+            <td data-label="操作">
+              <div class="row-actions">
+                <a class="action-link" href="{{ url_for('edit_transaction', tx_id=r.id) }}">修改</a>
+                <form method="post" action="{{ url_for('delete_transaction', tx_id=r.id) }}">
+                  <button class="danger" type="submit" onclick="return confirm('确定删除这条记录？')">删除</button>
+                </form>
+              </div>
+            </td>
+          </tr>
+          {% endfor %}
+        {% else %}
+          <tr>
+            <td colspan="6" class="empty">暂无记录</td>
+          </tr>
+        {% endif %}
+      </tbody>
+    </table>
+  </div>
+</section>
+
+{% endblock %}

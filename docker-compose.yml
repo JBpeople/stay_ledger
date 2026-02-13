@@ -1,0 +1,14 @@
+services:
+  ledger:
+    build: .
+    container_name: stay-ledger
+    ports:
+      - "8000:8000"
+    environment:
+      - SECRET_KEY=replace-with-a-random-string
+      - APP_PASSWORD=P@ssw0rd
+      # 生产可改为 APP_PASSWORD_HASH（优先级更高）
+      # - APP_PASSWORD_HASH=pbkdf2:sha256:...
+    volumes:
+      - ./data:/app/data
+    restart: unless-stopped

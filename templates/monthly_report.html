@@ -1,0 +1,146 @@
+{% extends "base.html" %}
+{% set title = "月度统计 - 记账工具" %}
+{% block content %}
+<header class="topbar">
+  <h1>月度统计</h1>
+  <div class="top-actions">
+    <a class="ghost-link" href="{{ url_for('index') }}">返回首页</a>
+    <a class="ghost-link" href="{{ url_for('settings') }}">配置</a>
+    <form method="post" action="{{ url_for('logout') }}">
+      <button class="ghost" type="submit">退出登录</button>
+    </form>
+  </div>
+</header>
+
+<section class="card">
+  <form method="get" action="{{ url_for('monthly_report') }}" class="report-filter">
+    <label class="report-label" for="month">选择月份</label>
+    <select id="month" name="month" required onchange="this.form.submit()">
+      {% for month in available_months %}
+      <option value="{{ month }}" {% if month == selected_month %}selected{% endif %}>{{ month }}</option>
+      {% endfor %}
+    </select>
+  </form>
+</section>
+
+<section class="summary-grid">
+  <article class="summary-card income">
+    <h2>{{ selected_month }} 收入总额</h2>
+    <p>¥ {{ "%.2f"|format(income_total) }}</p>
+  </article>
+  <article class="summary-card expense">
+    <h2>{{ selected_month }} 支出总额</h2>
+    <p>¥ {{ "%.2f"|format(expense_total) }}</p>
+  </article>
+  <article class="summary-card balance">
+    <h2>{{ selected_month }} 结余</h2>
+    <p>¥ {{ "%.2f"|format(balance) }}</p>
+  </article>
+</section>
+
+<section class="card">
+  <h2>分类支出占比</h2>
+  {% if category_expenses %}
+    <div class="monthly-list">
+      {% for item in category_expenses %}
+      <div class="monthly-item">
+        <div class="monthly-head">
+          <span>{{ item.category }}</span>
+          <strong>¥ {{ "%.2f"|format(item.total) }}（{{ "%.1f"|format(item.ratio) }}%）</strong>
+        </div>
+        <div class="bar">
+          <div class="bar-fill" style="width: {{ "%.2f"|format(item.ratio) }}%"></div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <p class="muted">该月暂无支出数据</p>
+  {% endif %}
+</section>
+
+<section class="card">
+  <h2>分类收入占比</h2>
+  {% if category_incomes %}
+    <div class="monthly-list">
+      {% for item in category_incomes %}
+      <div class="monthly-item">
+        <div class="monthly-head">
+          <span>{{ item.category }}</span>
+          <strong>¥ {{ "%.2f"|format(item.total) }}（{{ "%.1f"|format(item.ratio) }}%）</strong>
+        </div>
+        <div class="bar">
+          <div class="bar-fill" style="width: {{ "%.2f"|format(item.ratio) }}%"></div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <p class="muted">该月暂无收入数据</p>
+  {% endif %}
+</section>
+
+<section class="card">
+  <h2>当月每笔支出详情</h2>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>日期</th>
+          <th>分类</th>
+          <th>金额</th>
+          <th>备注</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% if expense_rows %}
+          {% for row in expense_rows %}
+          <tr>
+            <td data-label="日期">{{ row.happened_on }}</td>
+            <td data-label="分类">{{ row.category }}</td>
+            <td data-label="金额">¥ {{ "%.2f"|format(row.amount) }}</td>
+            <td data-label="备注">{{ row.note or "-" }}</td>
+          </tr>
+          {% endfor %}
+        {% else %}
+          <tr>
+            <td colspan="4" class="empty">该月暂无支出记录</td>
+          </tr>
+        {% endif %}
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section class="card">
+  <h2>当月每笔收入详情</h2>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>日期</th>
+          <th>分类</th>
+          <th>金额</th>
+          <th>备注</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% if income_rows %}
+          {% for row in income_rows %}
+          <tr>
+            <td data-label="日期">{{ row.happened_on }}</td>
+            <td data-label="分类">{{ row.category }}</td>
+            <td data-label="金额">¥ {{ "%.2f"|format(row.amount) }}</td>
+            <td data-label="备注">{{ row.note or "-" }}</td>
+          </tr>
+          {% endfor %}
+        {% else %}
+          <tr>
+            <td colspan="4" class="empty">该月暂无收入记录</td>
+          </tr>
+        {% endif %}
+      </tbody>
+    </table>
+  </div>
+</section>
+{% endblock %}

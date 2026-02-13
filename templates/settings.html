@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% set title = "配置 - 记账工具" %}
+{% block content %}
+<header class="topbar">
+  <h1>系统配置</h1>
+  <div class="top-actions">
+    <a class="ghost-link" href="{{ url_for('index') }}">返回首页</a>
+    <a class="ghost-link" href="{{ url_for('monthly_report') }}">月度统计</a>
+    <form method="post" action="{{ url_for('logout') }}">
+      <button class="ghost" type="submit">退出登录</button>
+    </form>
+  </div>
+</header>
+
+<section class="card">
+  <h2>Telegram Bot 记账</h2>
+  <form method="post" class="form">
+    <label class="check-row">
+      <input type="checkbox" name="telegram_enabled" {% if telegram_enabled %}checked{% endif %}>
+      <span>启用 Telegram Bot 自动记账</span>
+    </label>
+    <label>
+      Bot Token
+      <input name="telegram_bot_token" type="text" value="{{ telegram_bot_token }}" placeholder="123456:ABC-DEF...">
+    </label>
+    <label>
+      允许的 Chat ID（可选）
+      <input name="telegram_allowed_chat_id" type="text" value="{{ telegram_allowed_chat_id }}" placeholder="例如 123456789">
+    </label>
+    <button type="submit">保存配置</button>
+  </form>
+</section>
+
+<section class="card">
+  <h2>使用说明</h2>
+  <div class="help">
+    <p>1. 在 Telegram 里创建 Bot（@BotFather），拿到 Token。</p>
+    <p>2. 把 Token 粘贴到上方并保存，然后开启开关。</p>
+    <p>3. 可选：填入 Chat ID，限制只有该会话可记账。</p>
+    <p>4. 命令示例：</p>
+    <p><code>/expense 32.5 餐饮 午饭</code></p>
+    <p><code>/income 12000 工资 2月工资</code></p>
+    <p><code>/help</code> 查看帮助，<code>/myid</code> 获取当前 chat id。</p>
+    <p>分类需使用系统内置分类：{{ categories|join("、") }}</p>
+  </div>
+</section>
+{% endblock %}
